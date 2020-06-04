@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo Run unit test
+      - docker-compose run web python test_basic.py
+      - echo Build started on `date`
+      - echo Building the Docker image...          
+      - docker build -t flask-app:latest .
+      - docker tag flask-app:latest 597277503239.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest     
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Logginng in to repo...
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 597277503239.dkr.ecr.us-east-1.amazonaws.com/flask-app
+      - echo Pushing the Docker image...
+      - docker push 597277503239.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
